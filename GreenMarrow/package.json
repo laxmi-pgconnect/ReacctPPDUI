@@ -7,6 +7,9 @@
   "dependencies": {
     "@material-ui/core": "4.10.0",
     "@material-ui/icons": "4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
+    "@salesforce-ux/design-system": "^2.12.2",
+    "@salesforce/design-system-react": "^0.10.21",
     "bootstrap": "^4.5.0",
     "chartist": "0.10.1",
     "classnames": "2.2.6",
@@ -20,6 +23,7 @@
     "react-dom": "^16.13.1",
     "react-google-maps": "9.4.5",
     "react-icons": "^3.10.0",
+    "react-pro-sidebar": "^0.4.4",
     "react-router-dom": "5.2.0",
     "react-scripts": "3.4.1",
     "react-swipeable-views": "0.13.9",

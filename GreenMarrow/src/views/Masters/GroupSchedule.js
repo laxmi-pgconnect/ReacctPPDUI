@@ -5,57 +5,70 @@ import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 import { InputLabel } from '@material-ui/core';
-import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import CardFooter from "components/Card/CardFooter.js";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Button} from 'react-bootstrap';
-import './Item.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './Rep.css';
 import axios from 'axios'; 
 export default class Save extends React.Component{
     constructor(props) {  
         super(props)
         this.SaveData=this.SaveData.bind(this);
         this.state = {  
+          
             schNo:'',
             schName:'',isActive:'',
-            prtSchNo:'',prtSchName:'',
+            prtSchNo:'',prtName:'',
                 ItemP: [{schNo:'',schName:''}],
-                ItemPS: [{prtSchNo:'',prtSchName:''}]              
+                ItemPS: [{prtSchNo:'',prtName:''}]              
                
               
 } 
 this.schNo = this.schNo.bind(this);  
 this.schName = this.schName.bind(this);  
 this.prtSchNo = this.prtSchNo.bind(this);  
-this.prtSchName = this.prtSchName.bind(this);  
 this.isActive = this.isActive.bind(this);  
+this.onValueChange = this.onValueChange.bind(this);
+this.chn = this.chn.bind(this);  
 
 }  
+onValueChange(event) {
+  this.setState({
+    isActive: event.target.value
+  });
+}
 schNo(event) {  
+  this.setState({ schNo: event.target.value })  
+} 
+schName(event) {  
   this.setState({ schName: event.target.value })  
 } 
+prtName(event) {  
+  this.setState({ prtName: event.target.value })  
+} 
+
 isActive(event) {  
   this.setState({ isActive: event.target.value })  
 } 
-schName(event) {  
-    this.setState({ schName: event.target.value })  
-  } 
   prtSchNo(event) {  
     this.setState({ prtSchNo: event.target.value })  
   } 
-  prtSchName(event) {  
-    this.setState({ prtSchName: event.target.value })  
-  } 
-  
-schNoChange=(event,value)=>{
-this.setState({schNo:value.schNo})
-}
-pschNoChange=(event,value)=>{
-    this.setState({prtSchNo:value.schNo})
-     }
+ 
+  schNoChange=(event,value)=>{
+    this.setState({schNo:value.schNo})
+    this.setState({schName:value.schName})
+    }
+    pschNoChange=(event,value)=>{
+        this.setState({prtSchNo:value.schNo})
+        this.setState({prtName:value.schName})
+         }
+         chn(event){
+            this.setState({schName:event.target.value})
+          }
+
 componentDidMount() {  
 this.schNoData();
 this.parentschNoData();
@@ -82,34 +95,49 @@ parentschNoData(){
      });  
      });  
      }  
-     SaveData(event) {  
+     SaveData(event) { debugger;
         
-      let data = { schName: this.state.schName,  
-        prtSchNo: this.state.prtSchNo,  
-        prtSchName: this.state.prtSchName,  
+      let data = {
+        schNo:parseInt(this.state.schNo),
+        schName: this.state.schName,  
+        prtSchNo: parseInt(this.state.prtSchNo),  
+        prtName: this.state.prtName,  
         isActive: this.state.isActive   }
        fetch('https://localhost:44381/api/TmGrpschedules/SaveUpdate', {  
           crossDomain:true,
           method: 'Post',     
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify(data)
+          
       })
-      
+   
         
     .then(Response => Response.json())        
     .then(result => {  
            console.log(result);  
-        if (result.status === 'SUCCESSFULL')  
-        {
-         alert("SAVED SUCCESSFULLY")
-          this.props.history.push("/Save"); 
-        
-        }
-        else if(result.status === 'Conflict')
-        {
-          alert("Record Already Exist") 
-        }
-             debugger;  
+           console.log(this.state.isActive)
+           if (result.status === 'SUCCESSFULL')  
+           {
+            alert("SAVED SUCCESSFULLY")
+            
+           }
+           else if(result.status ==='Conflict')
+           {
+             alert("Record Already Exist") 
+           }
+           else if(result.status ==='NotFound')
+           {
+             alert("Record Not Found") 
+           }
+           else if(result.status ==='Not Allowed')
+           {
+             alert("Update Not Allowed") 
+           }
+           else if(result.status ==='Updated')
+           {
+             alert("Record Updated Sucessfull") 
+           }
+            debugger;
     })  
   }  
   View(schNo) {
@@ -119,7 +147,8 @@ parentschNoData(){
         console.log(response.data);
         this.setState({
             prtSchNo: response.data[0].prtSchNo,
-            prtSchName: response.data[0].prtSchName,
+            prtName: response.data[0].prtName,
+            isActive:response.data[0].isActive,
         });
       })
   }
@@ -127,7 +156,7 @@ parentschNoData(){
     axios.delete('https://localhost:44381/api/TmGrpschedules/' + schNo)
     .then(json => {  
          alert('Record deleted successfully!!');  
-        this.props.history.push(""); 
+      
         })  
        }
 
@@ -147,16 +176,19 @@ parentschNoData(){
                     <table>
                         <tr>
                             <td><InputLabel style={{fontSize:18,color:"black"}}className="label">GroupScheduleNo</InputLabel></td>
-                            <td> <TextField id="schNo" value={this.state.schNo}/></td>
+                            <td> <TextField  id="schNo" value={this.state.schNo}onChange={this.schNo}/></td>
+                            <td> <TextField type="hidden"  id="schName"onChange={this.schName} value={this.state.schName}/></td>
                             <td><Autocomplete    freeSolo  options={this.state.ItemP} getOptionLabel={option => option.schName} className="txt2" 
- id="schName" value={this.state.schName} onChange={this.schNoChange} renderInput={params => ( <TextField {...params}  fullWidth />   )}   /></td>
+ id="schName" onChange={this.schNoChange} renderInput={params => ( <TextField {...params} onChange={this.chn} fullWidth />   )}   /></td>
+                          
                             <td> <Button type="button" onClick={e => this.View(this.state.schNo)} >View</Button></td>
                         </tr>
                         <tr>
                         <td><InputLabel className="label"style={{color:"black",fontSize:18}}>ParentSchedule</InputLabel> </td>
-                        <td><TextField id="pschno" value={this.state.prtSchNo}/></td>
+                        <td><TextField   id="prtSchNo" value={this.state.prtSchNo}/></td>
+                        <td><TextField  type="hidden" id="prtSchName" value={this.state.prtName}/></td>
                         <td> <Autocomplete    freeSolo  options={this.state.ItemPS} getOptionLabel={option => option.schName} className="txt2" 
- id="PrtSchName"value={this.state.prtSchName}   onChange={this.pschNoChange} renderInput={params => ( <TextField {...params}  fullWidth />   )}   /> </td>
+ id="PrtSchName"  onChange={this.pschNoChange} renderInput={params => ( <TextField {...params} label={this.state.prtName}  fullWidth />   )}   /> </td>
                         </tr>
                         
                        </table>
@@ -167,9 +199,12 @@ parentschNoData(){
                    <tr>
                        <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Status</InputLabel></td>
                        <td> <RadioGroup row aria-label="position" name="position"className="radio"style={{marginLeft:70}}>
-                           <FormControlLabel id="isActive" value="A" control={<Radio color="primary" />} label="Active" />
-                           <FormControlLabel id="ISACTIVE_1"value="I" control={<Radio color="primary" />} label="InActive" />
-                           <FormControlLabel id="ISACTIVE_2"value="W"control={<Radio color="primary" />} label="For Approval" />
+                       <div className="radio"> <label>
+            <input   type="radio"   value="A"  checked={this.state.isActive === "A"}  onChange={this.onValueChange}/>Active&nbsp;&nbsp;&nbsp;</label> </div>
+            <div className="radio"> <label>
+            <input   type="radio"   value="I"  checked={this.state.isActive === "I"}  onChange={this.onValueChange}/>INActive&nbsp;&nbsp;&nbsp;</label> </div>
+            <div className="radio"> <label>
+            <input   type="radio"   value="FA"  checked={this.state.isActive === "FA"}  onChange={this.onValueChange}/>ForApproval</label> </div>
                            </RadioGroup></td>
                    </tr>
                    
