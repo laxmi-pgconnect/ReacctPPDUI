@@ -10,19 +10,119 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import CardFooter from "components/Card/CardFooter.js";
 import Checkbox from '@material-ui/core/Checkbox';
+import { Button} from 'react-bootstrap';
+import Autocomplete from '@material-ui/lab/Autocomplete';  
+import axios from 'axios';  
 import './Item.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
-
-
-  
-
 
 export default class AccountMaster extends Component{
     constructor( props ){
         super( props )
-        this.state = {show: [false,false,false,true]};
+        this.state = {
+            show: [false,false,false,true],
+            Account: [{accountCode:'',accountName:''}] ,
+            Accounttype: [{gcmCode:'',gcmDesc:''}] ,    
+            Grouptype: [{gtgcmCode:'',gcmDesc:''}] , 
+            CreditGroup: [{grpCode:'',grpName:''}] , 
+            Debit: [{dbgrpCode:'',grpName:''}] ,   
+            ConsCredit: [{ccgrpCode:'',grpName:''}] ,
+            ConsDebit: [{cbgrpCode:'',grpName:''}] ,     
+        
+        
+        };
+        
     }
+    AccountChange=(event,value)=>{
+        this.setState({accountCode:value.accountCode})
+         }
+         AccounttypeChange=(event,value)=>{
+            this.setState({gcmCode:value.gcmCode})
+             }
+             GrouptypeChange=(event,value)=>{
+                this.setState({gtgcmCode:value.gcmCode})
+                 }
+                 CreditGroupChange=(event,value)=>{
+                    this.setState({grpCode:value.grpCode})
+                     }
+                     DebitGroupChange=(event,value)=>{
+                        this.setState({dbgrpCode:value.grpCode})
+                         }
+                         ConsCreditGroupChange=(event,value)=>{
+                           this.setState({ccgrpCode:value.grpCode})
+                            }
+                            ConsDebitGroupChange=(event,value)=>{
+                               this.setState({cbgrpCode:value.grpCode})
+                                }
+                        
+            
+         componentDidMount() {  
+            this.AccountData();
+            this.AccounttypeData();
+            this.GrouptypeData();
+            this.CreditGroupData();
+            this.DebitGroupData();
+            this.ConsCreditGroupData();
+            this.ConsDebitGroupData();
+            
+            
+            }
+            AccountData(){
+           axios.post('https://localhost:44381/api/TmAccounts/AccountCode').then(response => {  
+            console.log(response.data);  
+            this.setState({  
+               Account: response.data  
+            });  
+            });  
+            }  
+            AccounttypeData(){
+                axios.post('https://localhost:44381/api/TmAccounts/Accounttype').then(response => {  
+                 console.log(response.data);  
+                 this.setState({  
+                    Accounttype: response.data  
+                 });  
+                 });  
+                 } 
+                 GrouptypeData(){
+                    axios.post('https://localhost:44381/api/TmAccounts/Grouptype').then(response => {  
+                     console.log(response.data);  
+                     this.setState({  
+                        Grouptype: response.data  
+                     });  
+                     });  
+                     }  
+                     CreditGroupData(){
+                        axios.post('https://localhost:44381/api/TmAccounts/CreditGroup').then(response => {  
+                         console.log(response.data);  
+                         this.setState({  
+                            CreditGroup: response.data  
+                         });  
+                         });  
+                         }  
+                         DebitGroupData(){
+                            axios.post('https://localhost:44381/api/TmAccounts/DebitGroup').then(response => {  
+                             console.log(response.data);  
+                             this.setState({  
+                                Debit: response.data  
+                             });  
+                             });  
+                             }  
+                             ConsCreditGroupData(){
+                                axios.post('https://localhost:44381/api/TmAccounts/DebitGroup').then(response => {  
+                                 console.log(response.data);  
+                                 this.setState({  
+                                    ConsCredit: response.data  
+                                 });  
+                                 });  
+                                 }
+                                 ConsDebitGroupData(){
+                                    axios.post('https://localhost:44381/api/TmAccounts/ConsDebitGroup').then(response => {  
+                                     console.log(response.data);  
+                                     this.setState({  
+                                        ConsDebit: response.data  
+                                     });  
+                                     });  
+                                     }
    
     showHide(num){
         this.setState((prevState) => {
@@ -51,19 +151,22 @@ export default class AccountMaster extends Component{
                     <table>
                         <tr>
                             <td><InputLabel style={{color:"black"}}className="label">AccountCode</InputLabel></td>
-                            <td><TextField id="formname" label="Code"/></td>
-                            <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
-                            <td><button type="button" class="btn btn-info"style={{marginTop:20}}>View</button></td>
+                            <td> <TextField id="accountCode" value={this.state.accountCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.Account} getOptionLabel={option => option.accountName} className="txt2" 
+ id="accountName"  onChange={this.AccountChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
+                            <td><Button type="button" onClick={e => this.View(this.state.accountCode)} >View</Button></td>
                         </tr>
                         <tr>
                             <td><InputLabel style={{color:"black"}}className="label">AccountType</InputLabel></td>
-                            <td><TextField id="formname" label="Code"/></td>
-                            <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
+                            <td> <TextField id="gcmCode" value={this.state.gcmCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.Accounttype} getOptionLabel={option => option.gcmDesc} className="txt2" 
+ id="gcmDesc"  onChange={this.AccounttypeChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
                         </tr>
                         <tr>
                             <td><InputLabel style={{color:"black"}}className="label">GroupType</InputLabel></td>
-                            <td><TextField id="formname" label="Code"/></td>
-                            <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
+                            <td> <TextField id="gtgcmCode" value={this.state.gtgcmCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.Grouptype} getOptionLabel={option => option.gcmDesc} className="txt2" 
+ id="gtgcmDesc"  onChange={this.GrouptypeChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
                         </tr>
                        </table>
                    </div>
@@ -76,18 +179,28 @@ export default class AccountMaster extends Component{
                                 <div class="col"style={{borderStyle:"ridge"}}>
                                      <table>
                         <tr>
-                          <td><InputLabel style={{color:"black"}}className="label">ConstCreditGroup</InputLabel></td>
-                            <td><TextField id="formname" label="Code"/></td>
-                            <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
+                          <td><InputLabel style={{color:"black"}}className="label">CreditGroup</InputLabel></td>
+                          <td> <TextField id="grpCode" value={this.state.grpCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.CreditGroup} getOptionLabel={option => option.grpName} className="txt2" 
+ id="grpName"  onChange={this.CreditGroupChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
                            </tr>
                         <tr>
                         <td><InputLabel style={{color:"black"}}className="label">DebitGroup</InputLabel></td>
-                            <td><TextField id="formname" label="Code"/></td>
-                            <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
-                            </tr><tr>
+                        <td> <TextField id="dbgrpCode" value={this.state.dbgrpCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.Debit} getOptionLabel={option => option.grpName} className="txt2" 
+ id="dbgrpName"  onChange={this.DebitGroupChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
+                            </tr>
+                            <tr>
+                            <td><InputLabel style={{color:"black"}}className="label">ConstCreditGroup</InputLabel></td>
+                            <td> <TextField id="ccgrpCode" value={this.state.ccgrpCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.ConsCredit} getOptionLabel={option => option.grpName} className="txt2" 
+ id="ccgrpName"  onChange={this.ConsCreditGroupChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
+                            </tr>
+                            <tr>
                             <td><InputLabel style={{color:"black"}}className="label">ConstDebitGroup</InputLabel></td>
-                            <td><TextField id="formname" label="Code"/></td>
-                            <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
+                            <td> <TextField id="cbgrpCode" value={this.state.cbgrpCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.ConsDebit} getOptionLabel={option => option.grpName} className="txt2" 
+ id="cbgrpName"  onChange={this.ConsDebitGroupChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
                             </tr>
                         
                        </table>

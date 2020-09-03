@@ -11,12 +11,53 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import CardFooter from "components/Card/CardFooter.js";
 import './Item.css';
 
-
-
-
 export default class ApprovedVendor extends Component{
+    constructor(props) {  
+        super(props)  
+        this.state = {  
+            VendorCode: [{accountCode:'',accountName:''}] ,
+            Item: [{itemCode:'',itemName:''}] ,
+          
+                            
+}  
+}  
+VendorCodeChange=(event,value)=>{
+    this.setState({accountCode:value.accountCode})
+     }
+     ItemChange=(event,value)=>{
+        this.setState({itemCode:value.itemCode})
+         }
+    
+ componentDidMount() {  
+ this.VendorCodeData();
+ this.ItemData();
+ this.Delete();
 
-
+  }
+  VendorCodeData(){
+        axios.post('https://localhost:44381/api/TmVendors/VendorCode').then(response => {  
+         console.log(response.data);  
+         this.setState({  
+            VendorCode: response.data  
+         });  
+         });  
+         }
+         ItemData(){
+            axios.post('https://localhost:44381/api/TmVendors/ItemCode').then(response => {  
+             console.log(response.data);  
+             this.setState({  
+                Item: response.data  
+             });  
+             });  
+             }
+             Delete(accountCode){
+                axios.delete('https://localhost:44381/api/TmVendors/' + accountCode)
+                .then(json => {  
+                     alert('Record deleted successfully!!');  
+                    this.props.history.push(""); 
+                    })  
+                   }
+             
 
     render(){
         return(
@@ -33,14 +74,16 @@ export default class ApprovedVendor extends Component{
                     <table>
                         <tr>
                             <td><InputLabel style={{fontSize:18,color:"black"}}className="label">Vendor Code</InputLabel></td>
-                            <td><TextField id="formname" label="Code"/></td>
-                            <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
-                            <td><button type="button" class="btn btn-info"style={{marginTop:20,height:30}}>View</button></td>
+                            <td> <TextField id="accountCode" value={this.state.accountCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.VendorCode} getOptionLabel={option => option.accountName} className="txt2" 
+ id="accountName"  onChange={this.VendorCodeChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
+                            <td><button type="button"onClick={e => this.View(this.state.accountCode)} class="btn btn-info"style={{marginTop:20,height:30}}>View</button></td>
                         </tr>
                         <tr>
                         <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Item Code</InputLabel> </td>
-                        <td><TextField id="formname" label="Code"/></td>
-                            <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
+                        <td> <TextField id="itemCode" value={this.state.itemCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.Item} getOptionLabel={option => option.itemName} className="txt2" 
+ id="itemName"  onChange={this.ItemChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
                         </tr>
                        </table>
                     <table >
@@ -68,7 +111,7 @@ export default class ApprovedVendor extends Component{
                     <CardFooter>
              <div class="btn-group " style={{position: "absolute",right: 0}}>
  <button type="button" class="btn btn-success "style={{borderRadius:7}}>Save</button>
- <button type="button" class="btn btn-success"style={{borderRadius:7}}>Delete</button>
+ <button type="button" class="btn btn-primary" onClick={e => this.Delete(this.state.accountCode)}>Delete</button>    
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Clear</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Print</button>
  <button type="button" class="btn btn-success" style={{borderRadius:7}} >Exit</button>

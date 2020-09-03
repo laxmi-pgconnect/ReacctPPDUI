@@ -10,13 +10,69 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import CardFooter from "components/Card/CardFooter.js";
 import './Item.css';
-
-
-
-
+import Autocomplete from '@material-ui/lab/Autocomplete';  
+import axios from 'axios'; 
 export default class ItemCategory extends Component{
+    constructor(props) {  
+        super(props)  
+        this.state = {  
+            Category: [{catgyCode:'',catgyName:''}] ,
+            Parent: [{pcatgyCode:'',catgyName:''}] ,
+            GrantParent: [{gcatgyCode:'',catgyName:''}] ,
+           
+           
+}  
+}  
 
+CategoryChange=(event,value)=>{
+this.setState({catgyCode:value.catgyCode})
+}
+ParentChange=(event,value)=>{
+this.setState({pcatgyCode:value.catgyCode})
+ }
+ GrantParentChange=(event,value)=>{debugger;
+    this.setState({gcatgyCode:value.catgyCode})
+     }
+     
+            
 
+componentDidMount() {  
+this.CategoryData();
+this.ParentData();
+this.GrantParentData();
+this.Delete();
+}
+CategoryData(){
+axios.post('https://localhost:44381/api/TmItemcategories/CategoryCode').then(response => {  
+ console.log(response.data);  
+ this.setState({  
+    Category: response.data  
+ });  
+ });  
+ }
+ ParentData(){
+    axios.post('https://localhost:44381/api/TmItemcategories/ParentCode').then(response => {  
+     console.log(response.data);  
+     this.setState({  
+        Parent: response.data  
+     });  
+     });  
+     }
+     GrantParentData(){
+        axios.post('https://localhost:44381/api/TmItemcategories/GrantParentCode').then(response => {  
+         console.log(response.data);  
+         this.setState({  
+            GrantParent: response.data  
+         });  
+         });  
+         }
+         Delete(catgyCode){
+            axios.delete('https://localhost:44381/api/TmItemcategories/' + catgyCode)
+            .then(json => {  
+                 alert('Record deleted successfully!!');  
+                this.props.history.push(""); 
+                })  
+               }
 
     render(){
         return(
@@ -33,19 +89,22 @@ export default class ItemCategory extends Component{
                     <table>
                         <tr>
                             <td><InputLabel style={{fontSize:18,color:"black"}}className="label">Category Code</InputLabel></td>
-                            <td><TextField id="formname" label="Code"/></td>
-                            <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
-                            <td><button type="button" class="btn btn-info"style={{marginTop:20,height:30}}>View</button></td>
+                            <td> <TextField id="catgyCode" value={this.state.catgyCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.Category} getOptionLabel={option => option.catgyName} className="txt2" 
+ id="catgyName"  onChange={this.CategoryChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
+                            <td><button type="button"onClick={e => this.View(this.state.catgyCode)} class="btn btn-info"style={{marginTop:20,height:30}}>View</button></td>
                         </tr>
                         <tr>
                         <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Parent Code</InputLabel> </td>
-                        <td><TextField id="itemtype" label="Code " /></td>
-                        <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
+                        <td> <TextField id="pcatgyCode" value={this.state.pcatgyCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.Parent} getOptionLabel={option => option.catgyName} className="txt2" 
+ id="pcatgyName"  onChange={this.ParentChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
                         </tr>
                         <tr>
                         <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Grant Parent Code</InputLabel> </td>
-                        <td><TextField id="itemtype" label="Code " /></td>
-                        <td><TextField id="itemtypename" label="Name"style={{width:250}} /></td>
+                        <td> <TextField id="gcatgyCode" value={this.state.gcatgyCode}/></td>
+ <td> <Autocomplete    freeSolo  options={this.state.GrantParent} getOptionLabel={option => option.catgyName} className="txt2" 
+ id="gcatgyName"  onChange={this.GrantParentChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
                         </tr>
                         
                     </table>
@@ -67,7 +126,7 @@ export default class ItemCategory extends Component{
                     <CardFooter>
              <div class="btn-group " style={{position: "absolute",right: 0}}>
  <button type="button" class="btn btn-success "style={{borderRadius:7}}>Save</button>
- <button type="button" class="btn btn-success"style={{borderRadius:7}}>Delete</button>
+ <button type="button" class="btn btn-success"style={{borderRadius:7}}onClick={e => this.Delete(this.state.catgyCode)}>Delete</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Clear</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Print</button>
  <button type="button" class="btn btn-success" style={{borderRadius:7}} >Exit</button>
