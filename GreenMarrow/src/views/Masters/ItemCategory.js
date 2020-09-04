@@ -5,11 +5,9 @@ import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 import { InputLabel, TextField } from '@material-ui/core';
-import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import CardFooter from "components/Card/CardFooter.js";
-import './Item.css';
+import './Rep.css';
 import Autocomplete from '@material-ui/lab/Autocomplete';  
 import axios from 'axios'; 
 export default class ItemCategory extends Component{
@@ -17,21 +15,44 @@ export default class ItemCategory extends Component{
         super(props)  
         this.state = {  
             Category: [{catgyCode:'',catgyName:''}] ,
-            Parent: [{pcatgyCode:'',catgyName:''}] ,
-            GrantParent: [{gcatgyCode:'',catgyName:''}] ,
-           
+            Parent: [{prtCode:'',prtName:''}] ,
+            GrantParent: [{gprtCode:'',gprtName:''}] ,
+            catgyCode:'',catgyName:'',prtCode:'',prtName:'',gprtCode:'',gprtName:'',isActive:''
            
 }  
+this.onValueChange = this.onValueChange.bind(this);
+this.chn = this.chn.bind(this);  
+this.catgyName = this.catgyName.bind(this);  
+this.SaveData=this.SaveData.bind(this);
+this.View=this.View.bind(this);
+this.catgyCode = this.catgyCode.bind(this);  
 }  
+catgyCode(event) {  
+  this.setState({ catgyCode: event.target.value })  
+} 
+catgyName(event) {  
+  this.setState({ catgyName: event.target.value })  
+} 
+onValueChange(event) {
+  this.setState({
+    isActive: event.target.value
+  });
+}
+chn(event){
+  this.setState({catgyName:event.target.value})
+}
 
 CategoryChange=(event,value)=>{
 this.setState({catgyCode:value.catgyCode})
+this.setState({catgyName:value.catgyName})
 }
-ParentChange=(event,value)=>{
-this.setState({pcatgyCode:value.catgyCode})
+ParentChange=(event,value)=>{debugger;
+this.setState({prtCode:value.prtCode})
+this.setState({prtName:value.catgyName})
  }
- GrantParentChange=(event,value)=>{debugger;
-    this.setState({gcatgyCode:value.catgyCode})
+ GrantParentChange=(event,value)=>{
+    this.setState({gprtCode:value.gprtCode})
+    this.setState({gprtName:value.catgyName})
      }
      
             
@@ -73,6 +94,70 @@ axios.post('https://localhost:44381/api/TmItemcategories/CategoryCode').then(res
                 this.props.history.push(""); 
                 })  
                }
+               SaveData(event) { debugger;
+                let data = {
+                  catgyCode:this.state.catgyCode,
+                  catgyName: this.state.catgyName,  
+                  prtCode: this.state.prtCode,  
+                  prtName: this.state.prtName,  
+                  gprtCode: this.state.gprtCode,  
+                  gprtName: this.state.gprtName,  
+                  isActive: this.state.isActive   }
+                 fetch('https://localhost:44381/api/TmItemcategories/SaveUpdate', {  
+                    crossDomain:true,
+                    method: 'Post',     
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(data)
+                  })
+              .then(Response => Response.json())        
+              .then(result => {  
+                     console.log(result);  
+                     console.log(this.state.isActive)
+                     if (result.status === 'SUCCESSFULL')  
+                     {
+                      alert("SAVED SUCCESSFULLY")
+                      
+                     }
+                     else if(result.status ==='Conflict')
+                     {
+                       alert("Record Already Exist") 
+                     }
+                     else if(result.status ==='NotFound')
+                     {
+                       alert("Record Not Found") 
+                     }
+                     else if(result.status ==='Not Allowed')
+                     {
+                       alert("Update Not Allowed") 
+                     }
+                     else if(result.status ==='Updated')
+                     {
+                       alert("Record Updated Sucessfull") 
+                     }
+                      debugger;
+              })  
+            }  
+            View(catgyCode) {
+              axios.post('https://localhost:44381/api/TmItemcategories/ViewItemCategory?catgyCode='+catgyCode )
+                .then(response => {
+          
+                  console.log(response.data);
+                  this.setState({
+                    prtCode: response.data[0].prtCode,
+                      prtName: response.data[0].prtName,
+                      gprtCode: response.data[0].gprtCode,
+                      gprtName: response.data[0].gprtName,
+                       isActive:response.data[0].isActive,
+                  });
+                })
+            }
+            Delete(catgyCode){
+              axios.delete('https://localhost:44381/api/TmGrpschedules/' + catgyCode)
+              .then(json => {  
+                   alert('Record deleted successfully!!');  
+                
+                  })  
+                 }
 
     render(){
         return(
@@ -89,22 +174,25 @@ axios.post('https://localhost:44381/api/TmItemcategories/CategoryCode').then(res
                     <table>
                         <tr>
                             <td><InputLabel style={{fontSize:18,color:"black"}}className="label">Category Code</InputLabel></td>
-                            <td> <TextField id="catgyCode" value={this.state.catgyCode}/></td>
+                            <td> <TextField id="catgyCode" value={this.state.catgyCode}onChange={this.catgyCode}/></td>
+                            <td><TextField  type="hidden"  id="catgyName" onChange={this.catgyName}value={this.state.catgyName}/></td>
  <td> <Autocomplete    freeSolo  options={this.state.Category} getOptionLabel={option => option.catgyName} className="txt2" 
- id="catgyName"  onChange={this.CategoryChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
+ id="catgyName"  onChange={this.CategoryChange} renderInput={params => ( <TextField {...params}  fullWidth onChange={this.chn}/> )}/> </td>
                             <td><button type="button"onClick={e => this.View(this.state.catgyCode)} class="btn btn-info"style={{marginTop:20,height:30}}>View</button></td>
                         </tr>
                         <tr>
                         <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Parent Code</InputLabel> </td>
-                        <td> <TextField id="pcatgyCode" value={this.state.pcatgyCode}/></td>
+                        <td> <TextField id="prtCode" value={this.state.prtCode}/></td>
+                        <td><TextField  type="hidden" id="prtName" value={this.state.prtName}/></td>
  <td> <Autocomplete    freeSolo  options={this.state.Parent} getOptionLabel={option => option.catgyName} className="txt2" 
- id="pcatgyName"  onChange={this.ParentChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
+ id="prtName"  onChange={this.ParentChange} renderInput={params => ( <TextField {...params}label={this.state.prtName}  fullWidth /> )}/> </td>
                         </tr>
                         <tr>
                         <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Grant Parent Code</InputLabel> </td>
-                        <td> <TextField id="gcatgyCode" value={this.state.gcatgyCode}/></td>
+                        <td> <TextField id="gprtCode" value={this.state.gprtCode}/></td>
+                        <td><TextField  type="hidden" id="gprtName" value={this.state.gprtName}/></td>
  <td> <Autocomplete    freeSolo  options={this.state.GrantParent} getOptionLabel={option => option.catgyName} className="txt2" 
- id="gcatgyName"  onChange={this.GrantParentChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
+ id="gprtName"  onChange={this.GrantParentChange} renderInput={params => ( <TextField {...params}label={this.state.gprtName}  fullWidth /> )}/> </td>
                         </tr>
                         
                     </table>
@@ -112,10 +200,13 @@ axios.post('https://localhost:44381/api/TmItemcategories/CategoryCode').then(res
                    <table>
                    <tr>
                        <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Status</InputLabel></td>
-                       <td> <RadioGroup row aria-label="position" name="position"className="radio"style={{marginLeft:75}}>
-                           <FormControlLabel id="ISACTIVE_0" value="A" control={<Radio color="primary" />} label="Active" />
-                           <FormControlLabel id="ISACTIVE_1"value="I" control={<Radio color="primary" />} label="InActive" />
-                           <FormControlLabel id="ISACTIVE_2"value="AP" control={<Radio color="primary" />} label="For Approval" />
+                       <td> <RadioGroup row aria-label="position" name="position"className="radio"style={{marginLeft:100}}>
+                       <div className="radio"> <label>
+            <input   type="radio"   value="A"  checked={this.state.isActive === "A"}  onChange={this.onValueChange}/>Active&nbsp;&nbsp;&nbsp;</label> </div>
+            <div className="radio"> <label>
+            <input   type="radio"   value="I"  checked={this.state.isActive === "I"}  onChange={this.onValueChange}/>INActive&nbsp;&nbsp;&nbsp;</label> </div>
+            <div className="radio"> <label>
+            <input   type="radio"   value="FA"  checked={this.state.isActive === "FA"}  onChange={this.onValueChange}/>ForApproval</label> </div>
                            </RadioGroup></td>
                    </tr>
                    </table>
@@ -125,7 +216,7 @@ axios.post('https://localhost:44381/api/TmItemcategories/CategoryCode').then(res
                     </CardBody> 
                     <CardFooter>
              <div class="btn-group " style={{position: "absolute",right: 0}}>
- <button type="button" class="btn btn-success "style={{borderRadius:7}}>Save</button>
+ <button type="button" class="btn btn-success "style={{borderRadius:7}}onClick={this.SaveData}>Save</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}onClick={e => this.Delete(this.state.catgyCode)}>Delete</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Clear</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Print</button>
