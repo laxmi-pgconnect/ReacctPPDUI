@@ -4,60 +4,88 @@ import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-import { InputLabel, TextField } from '@material-ui/core';
-import Radio from '@material-ui/core/Radio';
+import { InputLabel,  TextField } from '@material-ui/core';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import CardFooter from "components/Card/CardFooter.js";
-import './Item.css';
+import './Rep.css';
+import Autocomplete from '@material-ui/lab/Autocomplete';  
+import axios from 'axios'; 
 
 export default class ApprovedVendor extends Component{
-    constructor(props) {  
-        super(props)  
-        this.state = {  
-            VendorCode: [{accountCode:'',accountName:''}] ,
-            Item: [{itemCode:'',itemName:''}] ,
-          
-                            
+   constructor(props) {  
+      super(props)  
+      this.state = {  
+        Vendor:[{accountCode:'',accountName:''}] ,
+          Parent: [{prtCode:'',prtName:''}] ,
+          ItemCode:[{itemCode:'',itemName:''}] ,
+         
 }  
+this.onValueChange = this.onValueChange.bind(this);
+this.ValueChange = this.ValueChange.bind(this);
+this.chn = this.chn.bind(this);  
 }  
+accountCode(event) {  
+this.setState({ accountCode: event.target.value })  
+} 
 VendorCodeChange=(event,value)=>{
-    this.setState({accountCode:value.accountCode})
-     }
-     ItemChange=(event,value)=>{
-        this.setState({itemCode:value.itemCode})
-         }
-    
- componentDidMount() {  
- this.VendorCodeData();
- this.ItemData();
- this.Delete();
+this.setState({accountCode:value.accountCode})
+this.setState({accountName:value.accountName})
+}
+ItemCodeChange=(event,value)=>{
+   this.setState({itemCode:value.itemCode})
+   this.setState({itemName:value.itemName})
+   }
+   onValueChange(event) {
+      this.setState({
+        isActive: event.target.value
+      });
+    }
+    ValueChange(event) {
+      this.setState({
+        purType: event.target.value
+      });
+    }
+    chn(event){
+      this.setState({accountName:event.target.value})
+    }
+            
 
-  }
-  VendorCodeData(){
-        axios.post('https://localhost:44381/api/TmVendors/VendorCode').then(response => {  
-         console.log(response.data);  
-         this.setState({  
-            VendorCode: response.data  
-         });  
-         });  
-         }
-         ItemData(){
-            axios.post('https://localhost:44381/api/TmVendors/ItemCode').then(response => {  
-             console.log(response.data);  
-             this.setState({  
-                Item: response.data  
-             });  
-             });  
-             }
-             Delete(accountCode){
-                axios.delete('https://localhost:44381/api/TmVendors/' + accountCode)
-                .then(json => {  
-                     alert('Record deleted successfully!!');  
-                    this.props.history.push(""); 
-                    })  
-                   }
-             
+componentDidMount() {  
+this.VendorCodeData();
+this.ItemCodeData();
+
+}
+VendorCodeData(){
+axios.post('https://localhost:44381/api/TmVendors/VendorCode').then(response => {  
+console.log(response.data);  
+this.setState({  
+  Vendor: response.data  
+});  
+});  
+}
+ItemCodeData(){
+   axios.post('https://localhost:44381/api/TmVendors/ItemCode').then(response => {  
+   console.log(response.data);  
+   this.setState({  
+     ItemCode: response.data  
+   });  
+   });  
+   }
+   View(accountCode) {
+      axios.post('https://localhost:44381/api/TmItemcategories/ViewItemCategory?catgyCode='+accountCode )
+        .then(response => {
+  
+          console.log(response.data);
+          this.setState({
+            prtCode: response.data[0].prtCode,
+              prtName: response.data[0].prtName,
+              gprtCode: response.data[0].gprtCode,
+              gprtName: response.data[0].gprtName,
+               isActive:response.data[0].isActive,
+          });
+        })
+    }
+   
 
     render(){
         return(
@@ -73,34 +101,40 @@ VendorCodeChange=(event,value)=>{
                      <div class="col">
                     <table>
                         <tr>
-                            <td><InputLabel style={{fontSize:18,color:"black"}}className="label">Vendor Code</InputLabel></td>
-                            <td> <TextField id="accountCode" value={this.state.accountCode}/></td>
- <td> <Autocomplete    freeSolo  options={this.state.VendorCode} getOptionLabel={option => option.accountName} className="txt2" 
- id="accountName"  onChange={this.VendorCodeChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
-                            <td><button type="button"onClick={e => this.View(this.state.accountCode)} class="btn btn-info"style={{marginTop:20,height:30}}>View</button></td>
+                            <td><InputLabel style={{fontSize:18,color:"black"}}className="label">Vendor Code&nbsp;&nbsp;&nbsp;&nbsp;</InputLabel></td>
+                            <td> <TextField id="accountCode" value={this.state.accountCode}onChange={this.accountCode}/></td>
+<td> <Autocomplete    freeSolo  options={this.state.Vendor} getOptionLabel={option => option.accountName} className="txt2" 
+id="accountName"  onChange={this.VendorCodeChange} renderInput={params => ( <TextField {...params}  fullWidth onChange={this.chn}/> )}/> </td>
+                            <td><button type="button" class="btn btn-info"style={{marginTop:20,height:30}}>View</button></td>
                         </tr>
                         <tr>
                         <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Item Code</InputLabel> </td>
                         <td> <TextField id="itemCode" value={this.state.itemCode}/></td>
- <td> <Autocomplete    freeSolo  options={this.state.Item} getOptionLabel={option => option.itemName} className="txt2" 
- id="itemName"  onChange={this.ItemChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
+<td> <Autocomplete    freeSolo  options={this.state.ItemCode} getOptionLabel={option => option.itemName} className="txt2" 
+id="itemName"  onChange={this.ItemCodeChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
                         </tr>
                        </table>
                     <table >
                    <tr>
                        <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Purchase Type</InputLabel></td>
-                       <td> <RadioGroup row aria-label="position" name="position"className="radio">
-                           <FormControlLabel id="ISACTIVE_0" value="A" control={<Radio color="primary" />} label="Normal" />
-                           <FormControlLabel id="ISACTIVE_1"value="I" control={<Radio color="primary" />} label="Consigment" />
-                           </RadioGroup></td>
+                       <td> <div class="form-check-inline">
+                       <div className="radio"> <label>
+            <input   type="radio"   value="NP"  checked={this.state.purType === "NP"}  onChange={this.ValueChange}/>Normal&nbsp;&nbsp;&nbsp;</label> </div>
+            <div className="radio"> <label>
+            <input   type="radio"   value="CP"  checked={this.state.purType === "CP"}  onChange={this.ValueChange}/>Consigment&nbsp;&nbsp;&nbsp;</label> </div>
+            </div>  </td>
+                     
                    </tr>
                    <tr>
                        <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Status</InputLabel></td>
-                       <td> <RadioGroup row aria-label="position" name="position"className="radio">
-                           <FormControlLabel id="ISACTIVE_0" value="A" control={<Radio color="primary" />} label="Active" />
-                           <FormControlLabel id="ISACTIVE_1"value="I" control={<Radio color="primary" />} label="InActive" />
-                           <FormControlLabel id="ISACTIVE_2"value="AP" control={<Radio color="primary" />} label="For Approval" />
-                           </RadioGroup></td>
+                       <td>  <div class="form-check-inline">
+                       <div className="radio"> <label>
+            <input   type="radio"   value="A"  checked={this.state.isActive === "A"}  onChange={this.onValueChange}/>Active&nbsp;&nbsp;&nbsp;</label> </div>
+            <div className="radio"> <label>
+            <input   type="radio"   value="I"  checked={this.state.isActive === "I"}  onChange={this.onValueChange}/>INActive&nbsp;&nbsp;&nbsp;</label> </div>
+            <div className="radio"> <label>
+            <input   type="radio"   value="FA"  checked={this.state.isActive === "FA"}  onChange={this.onValueChange}/>ForApproval</label> </div>
+            </div></td>
                    </tr>
                    
                    </table>
@@ -111,7 +145,7 @@ VendorCodeChange=(event,value)=>{
                     <CardFooter>
              <div class="btn-group " style={{position: "absolute",right: 0}}>
  <button type="button" class="btn btn-success "style={{borderRadius:7}}>Save</button>
- <button type="button" class="btn btn-primary" onClick={e => this.Delete(this.state.accountCode)}>Delete</button>    
+ <button type="button" class="btn btn-success"style={{borderRadius:7}}>Delete</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Clear</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Print</button>
  <button type="button" class="btn btn-success" style={{borderRadius:7}} >Exit</button>

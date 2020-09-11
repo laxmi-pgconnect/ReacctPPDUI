@@ -38,7 +38,8 @@ import { BsFillPersonFill,BsLockFill } from "react-icons/bs";
             method: 'Post',     
             headers: {'Content-Type':'application/json'},
             body: JSON.stringify(data)
-        }).then(Response => Response.json())        
+        }).then(Response => Response.json(),
+        console.log(Response.json))        
             .then(result => {  
                    console.log(result);  
                 if (result.status === 'Success')  

@@ -11,7 +11,7 @@ import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Rep.css';
+import './Item.css';
 import axios from 'axios'; 
 export default class Save extends React.Component{
     constructor(props) {  
@@ -198,14 +198,14 @@ parentschNoData(){
                    
                    <tr>
                        <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Status</InputLabel></td>
-                       <td> <RadioGroup row aria-label="position" name="position"className="radio"style={{marginLeft:70}}>
+                       <td>  <div class="form-check-inline">
                        <div className="radio"> <label>
             <input   type="radio"   value="A"  checked={this.state.isActive === "A"}  onChange={this.onValueChange}/>Active&nbsp;&nbsp;&nbsp;</label> </div>
             <div className="radio"> <label>
             <input   type="radio"   value="I"  checked={this.state.isActive === "I"}  onChange={this.onValueChange}/>INActive&nbsp;&nbsp;&nbsp;</label> </div>
             <div className="radio"> <label>
             <input   type="radio"   value="FA"  checked={this.state.isActive === "FA"}  onChange={this.onValueChange}/>ForApproval</label> </div>
-                           </RadioGroup></td>
+            </div></td>
                    </tr>
                    
                    </table>
