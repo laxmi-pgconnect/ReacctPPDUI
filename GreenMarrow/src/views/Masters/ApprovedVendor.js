@@ -5,9 +5,8 @@ import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 import { InputLabel,  TextField } from '@material-ui/core';
-import RadioGroup from '@material-ui/core/RadioGroup';
 import CardFooter from "components/Card/CardFooter.js";
-import './Rep.css';
+import './Item.css';
 import Autocomplete from '@material-ui/lab/Autocomplete';  
 import axios from 'axios'; 
 
@@ -18,15 +17,24 @@ export default class ApprovedVendor extends Component{
         Vendor:[{accountCode:'',accountName:''}] ,
           Parent: [{prtCode:'',prtName:''}] ,
           ItemCode:[{itemCode:'',itemName:''}] ,
+          accountCode:'',itemCode:'',isActive:'',purType:''
          
 }  
 this.onValueChange = this.onValueChange.bind(this);
-this.ValueChange = this.ValueChange.bind(this);
+
 this.chn = this.chn.bind(this);  
+this.SaveData=this.SaveData.bind(this);
+this.ValueChange = this.ValueChange.bind(this);
 }  
 accountCode(event) {  
 this.setState({ accountCode: event.target.value })  
 } 
+accountName(event) {  
+  this.setState({ accountName: event.target.value })  
+  } 
+  itemName(event) {  
+    this.setState({ itemName: event.target.value })  
+    } 
 VendorCodeChange=(event,value)=>{
 this.setState({accountCode:value.accountCode})
 this.setState({accountName:value.accountName})
@@ -71,21 +79,58 @@ ItemCodeData(){
    });  
    });  
    }
-   View(accountCode) {
-      axios.post('https://localhost:44381/api/TmItemcategories/ViewItemCategory?catgyCode='+accountCode )
+   View(accountCode,itemCode) {
+      axios.post('https://localhost:44381/api/TmVendors/ViewData?accountCode='+accountCode+'&itemCode='+itemCode)
         .then(response => {
   
           console.log(response.data);
           this.setState({
-            prtCode: response.data[0].prtCode,
-              prtName: response.data[0].prtName,
-              gprtCode: response.data[0].gprtCode,
-              gprtName: response.data[0].gprtName,
-               isActive:response.data[0].isActive,
+            itemCode: response.data[0].itemCode,
+            itemName: response.data[0].itemName,
+              isActive: response.data[0].isActive,
+              purType:response.data[0].purType,
           });
         })
     }
-   
+    SaveData(event) { debugger;
+      let data = {
+        accountCode:this.state.accountCode,
+        itemCode: this.state.itemCode,  
+         purType: this.state.purType,  
+         isActive: this.state.isActive   }
+       fetch('https://localhost:44381/api/TmVendors/SaveData', {  
+          crossDomain:true,
+          method: 'Post',     
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(data)
+        })
+    .then(Response => Response.json())        
+    .then(result => {  
+           console.log(result);  
+        if (result.status === 'SUCCESSFULL')  
+           {
+            alert("SAVED SUCCESSFULLY")
+            
+           }
+           else if(result.status ==='Conflict')
+           {
+             alert("Record Already Exist") 
+           }
+           else if(result.status ==='NotFound')
+           {
+             alert("Record Not Found") 
+           }
+           else if(result.status ==='Not Allowed')
+           {
+             alert("Update Not Allowed") 
+           }
+           else if(result.status ==='Updated')
+           {
+             alert("Record Updated Sucessfull") 
+           }
+            debugger;
+    })  
+  }  
 
     render(){
         return(
@@ -103,13 +148,15 @@ ItemCodeData(){
                         <tr>
                             <td><InputLabel style={{fontSize:18,color:"black"}}className="label">Vendor Code&nbsp;&nbsp;&nbsp;&nbsp;</InputLabel></td>
                             <td> <TextField id="accountCode" value={this.state.accountCode}onChange={this.accountCode}/></td>
+                            <td><TextField  type="hidden"  id="accountName" onChange={this.accountName}value={this.state.accountName}/></td>
 <td> <Autocomplete    freeSolo  options={this.state.Vendor} getOptionLabel={option => option.accountName} className="txt2" 
 id="accountName"  onChange={this.VendorCodeChange} renderInput={params => ( <TextField {...params}  fullWidth onChange={this.chn}/> )}/> </td>
-                            <td><button type="button" class="btn btn-info"style={{marginTop:20,height:30}}>View</button></td>
+                          <td><button type="button"onClick={e => this.View(this.state.accountCode,this.state.itemCode)} class="btn btn-info"style={{marginTop:20,height:30}}>View</button></td>
                         </tr>
                         <tr>
                         <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Item Code</InputLabel> </td>
                         <td> <TextField id="itemCode" value={this.state.itemCode}/></td>
+                        <td><TextField  type="hidden"  id="itemName" onChange={this.itemName}value={this.state.itemName}/></td>
 <td> <Autocomplete    freeSolo  options={this.state.ItemCode} getOptionLabel={option => option.itemName} className="txt2" 
 id="itemName"  onChange={this.ItemCodeChange} renderInput={params => ( <TextField {...params}  fullWidth /> )}/> </td>
                         </tr>
@@ -144,7 +191,7 @@ id="itemName"  onChange={this.ItemCodeChange} renderInput={params => ( <TextFiel
                     </CardBody> 
                     <CardFooter>
              <div class="btn-group " style={{position: "absolute",right: 0}}>
- <button type="button" class="btn btn-success "style={{borderRadius:7}}>Save</button>
+ <button type="button" class="btn btn-success "style={{borderRadius:7}}onClick={this.SaveData}>Save</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Delete</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Clear</button>
  <button type="button" class="btn btn-success"style={{borderRadius:7}}>Print</button>
