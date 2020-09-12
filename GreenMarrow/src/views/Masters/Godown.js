@@ -379,11 +379,11 @@ axios.post('https://localhost:44381/api/TmGodowns/Branch').then(response => {
                     <tr>
                         <td><InputLabel className="label"style={{color:"black",fontSize:18}}>Status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</InputLabel></td>
                         <td>  <div class="form-check-inline">
-                       <div className="radio"> <label>
+                       <div className="radio"> <label style={{fontSize:15,color:"black"}}>
             <input   type="radio"   value="A"  checked={this.state.isActive === "A"}  onChange={this.onValueChange}/>Active&nbsp;&nbsp;&nbsp;</label> </div>
-            <div className="radio"> <label>
+            <div className="radio"> <label style={{fontSize:15,color:"black"}}>
             <input   type="radio"   value="I"  checked={this.state.isActive === "I"}  onChange={this.onValueChange}/>INActive&nbsp;&nbsp;&nbsp;</label> </div>
-            <div className="radio"> <label>
+            <div className="radio"> <label style={{fontSize:15,color:"black"}}>
             <input   type="radio"   value="FA"  checked={this.state.isActive === "FA"}  onChange={this.onValueChange}/>ForApproval</label> </div>
             </div></td>
                     </tr>
